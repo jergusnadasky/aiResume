@@ -7,6 +7,14 @@ import {
     Lightbulb
 } from "lucide-react";
 
+const SCORE_CONFIG = [
+    { key: "structure", label: "Structure", max: 20 },
+    { key: "technical_depth", label: "Technical Depth", max: 25 },
+    { key: "impact", label: "Impact", max: 25 },
+    { key: "clarity", label: "Clarity", max: 15 },
+    { key: "ats", label: "ATS Optimization", max: 15 },
+];
+
 export default function ModernResults() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -65,33 +73,34 @@ export default function ModernResults() {
 
                         <div className="text-center">
                             <div className={`text-6xl font-bold ${getScoreColor(ai.overall_score)}`}>
-                                {ai.overall_score}
+                                {ai.overall_score}/100
                             </div>
-                            <div className="text-gray-600 font-medium">out of 100</div>
+                            <div className="text-gray-600 font-medium">Overall</div>
+
                         </div>
                     </div>
                 </div>
 
                 {/* Subscores */}
-                {ai.subscores && (
+                {ai?.subscores && (
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-                        {Object.entries(ai.subscores).map(([key, value]) => {
-                            const max = ai.score_scale?.[key];
+                        {SCORE_CONFIG.map(({ key, label, max }) => {
+                            const value = ai.subscores[key] ?? 0;
 
                             return (
                                 <div key={key} className="bg-white rounded-xl shadow p-6 text-center">
                                     <div className={`text-3xl font-bold mb-1 ${getScoreColor(value, max)}`}>
                                         {value}/{max}
                                     </div>
-                                    <div className="text-sm text-gray-600 capitalize">
-                                        {key.replace("_", " ")}
+                                    <div className="text-sm text-gray-600">
+                                        {label}
                                     </div>
                                 </div>
                             );
                         })}
-
                     </div>
                 )}
+
 
                 {/* AI Insights */}
                 <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl shadow-lg p-6 mb-6">

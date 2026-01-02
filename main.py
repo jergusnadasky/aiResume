@@ -48,8 +48,6 @@ async def upload_resume(file: UploadFile = File(...)):
 
     ai = await ai_resume_analysis(text, pages)
 
-    if "score_scale" not in ai:
-        ai["score_scale"] = SCORE_SCALE
     if "subscores" not in ai:
         ai["subscores"] = {}
 
@@ -66,9 +64,12 @@ async def ai_resume_analysis(text: str, pages: int):
     prompt = f"""
 You are a senior hiring manager and resume expert.
 
-Evaluate the following resume and return ONLY valid JSON.
-Do NOT include markdown.
-Do NOT include text before or after JSON.
+CRITICAL OUTPUT RULES:
+- Output ONLY valid JSON
+- No markdown
+- No bullet symbols (•, -, —)
+- All arrays MUST contain quoted strings only
+- If you cannot comply, return empty arrays
 
 Resume:
 {text}
@@ -127,6 +128,7 @@ Your JSON format MUST be exactly:
 
         # Remove markdown fences if present
         cleaned = repair_json(raw)
+        cleaned = fix_unquoted_bullets(cleaned)
 
         print("\n========== FINAL JSON ATTEMPT ==========\n")
         print(cleaned)
@@ -143,9 +145,6 @@ Your JSON format MUST be exactly:
 
             if "scores" in data and "subscores" not in data:
                 data["subscores"] = data.pop("scores")
-
-            # 🔥 ATTACH SCORE SCALE (Issue #4 FIX)
-            data["score_scale"] = SCORE_SCALE
 
             # 🔥 Defensive: ensure subscores exist
             if "subscores" not in data:
@@ -227,3 +226,19 @@ def repair_json(raw: str) -> str:
         cleaned += "]" * (open_brackets - close_brackets)
 
     return cleaned
+
+def fix_unquoted_bullets(text: str) -> str:
+    import re
+
+    def replacer(match):
+        content = match.group(1).strip()
+        return f'"{content}"'
+
+    # Fix bullet lines inside arrays
+    text = re.sub(
+        r'[\n\r]\s*[•\-]\s*(.+)',
+        lambda m: '\n    "' + m.group(1).replace('"', '\\"') + '",',
+        text
+    )
+
+    return text
