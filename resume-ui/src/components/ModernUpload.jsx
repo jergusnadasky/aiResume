@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, FileText, Sparkles, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, FileText, Sparkles, CheckCircle2, AlertCircle, Loader2, Mail, Github, Linkedin } from "lucide-react";
 
 const API_URL = "http://localhost:8000";
 
@@ -88,8 +88,11 @@ export default function ModernUpload() {
                             <Sparkles className="w-10 h-10 text-white" />
                         </div>
                         <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-3">
-                            Resume Intelligence
+                            aiResume
                         </h1>
+                        <a href="https://linkedin.com/in/jergusnadasky" className="inline-block text-lg md:text-xl font-semibold text-gray-700 hover:text-purple-600 transition-colors duration-200">
+                            by Jergus Nadasky
+                        </a>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                             Get AI-powered analysis and actionable recommendations to make your resume stand out
                         </p>
@@ -177,7 +180,7 @@ export default function ModernUpload() {
                     </div>
 
                     {/* Features */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in-delay">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in-delay">
                         {[
                             { icon: FileText, title: "AI Analysis", desc: "Comprehensive evaluation using advanced AI" },
                             { icon: Sparkles, title: "Smart Insights", desc: "Actionable recommendations tailored to you" },
@@ -192,6 +195,35 @@ export default function ModernUpload() {
                                 <p className="text-sm text-gray-600">{feature.desc}</p>
                             </div>
                         ))}
+                    </div>
+
+                    {/* Social Links */}
+                    <div className="flex items-center justify-center gap-4 animate-fade-in-delay">
+                        <a
+                            href="mailto:jergusko23@gmail.com"
+                            className="group flex items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                            aria-label="Email"
+                        >
+                            <Mail className="w-5 h-5 text-gray-600 group-hover:text-gray-800 transition-colors" />
+                        </a>
+                        <a
+                            href="https://github.com/jergusnadasky"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                            aria-label="GitHub"
+                        >
+                            <Github className="w-5 h-5 text-gray-600 group-hover:text-gray-800 transition-colors" />
+                        </a>
+                        <a
+                            href="https://linkedin.com/in/jergusnadasky"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                            aria-label="LinkedIn"
+                        >
+                            <Linkedin className="w-5 h-5 text-gray-600 group-hover:text-gray-800 transition-colors" />
+                        </a>
                     </div>
                 </div>
             </div>

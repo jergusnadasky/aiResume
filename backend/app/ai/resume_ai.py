@@ -1,62 +1,10 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-import pdfplumber
-import httpx
 import json
+import httpx
 
-app = FastAPI()
+from app.utils.json_fixers import repair_json, fix_unquoted_bullets
+from app.utils.scoring import SCORE_SCALE
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-SCORE_SCALE = {
-    "structure": 20,
-    "technical_depth": 25,
-    "impact": 25,
-    "clarity": 15,
-    "ats": 15
-}
-
-
-
-@app.get("/")
-def home():
-    return {"message": "Resume Evaluator API running with REAL AI 🚀"}
-
-
-@app.post("/upload")
-async def upload_resume(file: UploadFile = File(...)):
-    if file.content_type != "application/pdf":
-        return {"error": "Please upload a PDF file"}
-
-    text = ""
-    with pdfplumber.open(file.file) as pdf:
-        for page in pdf.pages:
-            extracted = page.extract_text()
-            if extracted:
-                text += extracted + "\n"
-
-        pages = len(pdf.pages)
-
-    ai = await ai_resume_analysis(text, pages)
-
-    if "subscores" not in ai:
-        ai["subscores"] = {}
-
-    return {
-        "status": "success",
-        "pages_detected": pages,
-        "ai_feedback": ai,
-        "raw_text": text
-    }
+OLLAMA_URL = "http://localhost:11434/v1/chat/completions"
 
 
 
@@ -140,7 +88,7 @@ IMPORTANT: Each category in feedback_by_category should have at least 1 item in 
     try:
         async with httpx.AsyncClient(timeout=180) as client:
             res = await client.post(
-                "http://localhost:11434/v1/chat/completions",
+                OLLAMA_URL,
                 json={
                     "model": "llama3",
                     "messages": [
@@ -280,7 +228,7 @@ IMPORTANT: Each category in feedback_by_category should have at least 1 item in 
         return {
             "overall_score": 0,
             "subscores": {},
-            "score_scale": SCORE_SCALE,  # ✅ ADD THIS
+            "score_scale": SCORE_SCALE,  
             "summary": "AI failed to produce valid JSON",
             "strengths": [],
             "issues": ["AI engine returned malformed output"],
@@ -292,62 +240,3 @@ IMPORTANT: Each category in feedback_by_category should have at least 1 item in 
             "reasoning": str(e),
             "raw_error": str(e)
         }
-
-
-def repair_json(raw: str) -> str:
-    """
-    Attempts to fix common LLM JSON issues including trailing commas.
-    """
-    import re
-    
-    cleaned = raw.strip()
-
-    # Remove markdown if present
-    if cleaned.startswith("```"):
-        cleaned = cleaned.replace("```json", "").replace("```", "").strip()
-
-    # 🔥 FIX TRAILING COMMAS (the main issue!)
-    # Remove commas before closing brackets or braces
-    cleaned = re.sub(r',(\s*[}\]])', r'\1', cleaned)
-    
-    # 🔥 FIX COMMON TYPOS FROM LLAMA3
-    cleaned = cleaned.replace('"Estructure"', '"structure"')
-    cleaned = cleaned.replace('"Technical_depth"', '"technical_depth"')
-    cleaned = cleaned.replace('"Impact"', '"impact"')
-    cleaned = cleaned.replace('"Cliquarity"', '"clarity"')
-    cleaned = cleaned.replace('"ATS_relevance"', '"ats"')
-    cleaned = cleaned.replace('"sory"', '"summary"')
-    cleaned = cleaned.replace('"reasoning"', '"summary"')  # Sometimes it uses reasoning instead
-    
-    # Count braces
-    open_braces = cleaned.count("{")
-    close_braces = cleaned.count("}")
-
-    # If missing closing braces, append them
-    if close_braces < open_braces:
-        cleaned += "}" * (open_braces - close_braces)
-    
-    # Count brackets
-    open_brackets = cleaned.count("[")
-    close_brackets = cleaned.count("]")
-    
-    if close_brackets < open_brackets:
-        cleaned += "]" * (open_brackets - close_brackets)
-
-    return cleaned
-
-def fix_unquoted_bullets(text: str) -> str:
-    import re
-
-    def replacer(match):
-        content = match.group(1).strip()
-        return f'"{content}"'
-
-    # Fix bullet lines inside arrays
-    text = re.sub(
-        r'[\n\r]\s*[•\-]\s*(.+)',
-        lambda m: '\n    "' + m.group(1).replace('"', '\\"') + '",',
-        text
-    )
-
-    return text
