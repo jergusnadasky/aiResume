@@ -4,10 +4,12 @@ import ModernResults from "./components/ModernResults";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<ModernUpload />} />
-      <Route path="/results" element={<ModernResults />} />
-    </Routes>
+    <div className="w-full h-full min-h-screen">
+      <Routes>
+        <Route path="/" element={<ModernUpload />} />
+        <Route path="/results" element={<ModernResults />} />
+      </Routes>
+    </div>
   );
 }
 
