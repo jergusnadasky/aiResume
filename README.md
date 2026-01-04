@@ -152,14 +152,8 @@ No data is stored. No external APIs are used.
 
 ## 🎥 Demo & Commentary
 
-📌 YouTube Walkthrough (Coming Soon)
-Add your demo video link here
-
-In the video, I plan to cover:
-- Design decisions and tradeoffs
-- Local AI vs hosted AI
-- Error handling and JSON repair
-- What I would improve in a production version
+📌 YouTube Walkthrough
+(https://youtu.be/iFYXSdV_feI)
 
 ## 🧠 Design Notes
 - All AI inference is local for cost, privacy, and transparency/learning
