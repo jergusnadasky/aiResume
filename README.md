@@ -38,7 +38,7 @@ This project was built to demonstrate:
 - httpx (AI requests)
 - Runs on http://localhost:8000
 
-###**AI**
+### **AI**
 - Ollama
 - Llama 3 (local model)
 - API served at http://localhost:11434
