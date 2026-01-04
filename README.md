@@ -89,6 +89,15 @@ ollama pull llama3
 
 ### 🚀 Running the Application (Local)
 
+## Clone the repo
+1. ```
+   git clone https://github.com/jergusnadasky/aiResume.git
+   ```
+
+2. ```
+   cd aiResume
+   ```
+
 The app runs as **three services**:
 
 - AI (Ollama)
